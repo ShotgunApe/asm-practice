@@ -35,39 +35,32 @@ print_uint32:
 
 square_num:
     add   ebx, [num]
-    dec   cx
+    dec   ecx
     jnz   square_num
     ret
-
 
 _start:
     ; declare number to be squared and assign to register ebx, ONLY # NEED TO CHANGE
     mov   ebx, 10
     mov   [num], ebx
-
-    ; outer counter from num
-    mov   ecx, 0
-
+    mov   ecx, ebx
+    
 loop:
-    cmp   ecx, 10
-
-    ; use temporary value in eax to loop correct number of times (jank)
-    mov   eax, ebx
-    add   eax, -1
+    ; use temporary value in eax to loop correct number of times for inner loop (jank)
+    lea   eax, [ebx - 1]   ; mov + add
     mov   [tmp], eax
-    mov   cx, [tmp]
-
+    mov   ecx, [tmp]
+    
+    ; call function to square val of n
     call  square_num
     
     ; add squared num to result
     add   edx, ebx
-
-
+    
     ; TODO: fix values then loop
 
-
     ; display number
-    lea   edi, [rdx]
+    lea   edi, [rbx]
     call  print_uint32
 
 exit:
