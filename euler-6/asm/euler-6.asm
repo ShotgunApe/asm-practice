@@ -34,45 +34,77 @@ print_uint32:
     ret
 
 square_num:
-    add   ebx, [num]
+    add   edx, ebx
     dec   ecx
     jnz   square_num
     ret
 
 _start:
-    ; declare number to be squared and assign to register ebx, ONLY # NEED TO CHANGE
-    mov   ebx, 10
-    mov   [num], ebx
-    mov   ecx, ebx
+    ; declare number to be squared from n in .data section (edi should be called first from here before ebx to make the most sense but they both work whatev)
+    mov   ebx, [n]
+
+    ; edi keeps track of outer loop
+    mov   edi, ebx
     
-loop:
-    ; use temporary value in eax to loop correct number of times for inner loop (jank)
-    lea   eax, [ebx - 1]   ; mov + add
-    mov   [tmp], eax
-    mov   ecx, [tmp]
-    
-    ; call function to square val of n
+sum_of_squares:
+    ; run loop until sum has been computed
+    cmp   edi, 0
+    je    square_of_sums
+
+    ; call function to square value in register ebx, ecx number of times (ecx keeps track of inner loop)
+    mov   ecx, edi
     call  square_num
     
-    ; add squared num to result
-    add   edx, ebx
-    
-    ; TODO: fix values then loop
+    ; fix registers + dec value
+    dec   edi
+    mov   ebx, edi
+    jmp   sum_of_squares
+
+square_of_sums:
+    ; at this point, register edx holds the value of sum of squares
+
+    ; temporarily hold value of edx in tmp
+    mov   [tmp], edx
+
+    ; clear values of registers
+    xor   ebx, ebx
+    xor   ecx, ecx
+    xor   edx, edx
+
+    ; loop until sum of first n integers is completed, edi for outer loop again
+    mov   edi, [n]
+
+find_second_sum:
+    ; add sum to be squared to edx again
+    add   edx, edi
+    dec   edi
+    jnz   find_second_sum
+
+    ; prep registers again, ebx holds value added each time and ecx is our counter for inner loop again
+    mov   ebx, edx
+    mov   ecx, edx
+
+    ; prep edx register to hold new sum
+    xor   edx, edx
+    call  square_num
+
+    ; finally find the difference \o/
+    sub   edx, [tmp]
 
     ; display number
-    lea   edi, [rbx]
+    lea   edi, [edx]
     call  print_uint32
 
 exit:
+    ; exit code
     mov   rax, 60
     mov   rdi, 0
     syscall
 
 
 section .data
-
+    ; value of n - problem 6 calls for a value n = 100
+    n     dq 100
 
 section .bss
-    num:  resb 4     ; number n to solve problem 6
-    tmp:  resb 4     ; tmp to iterate correct number of times when squaring number
-    res:  resb 4     ; result
+    tmp   resb 4

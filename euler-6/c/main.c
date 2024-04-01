@@ -2,7 +2,7 @@
 
 int main() {
     //Value n to compute - ex. 10 for problem 6.
-    int n = 10;
+    int n = 100;
     int soq = 0;
     int sos = 0;
 
